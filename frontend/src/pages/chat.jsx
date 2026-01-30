@@ -104,24 +104,25 @@ export default function Chat() {
   return (
     <div className="h-screen flex flex-col bg-black text-white">
       {/* TOP BAR */}
-      <div className="flex items-center px-3 py-2 border-b border-zinc-800">
-        <button
-          onClick={leaveChat}
-          className="text-pink-400 text-sm"
-        >
-          ← Back
-        </button>
-        <span className="ml-3 text-sm text-zinc-400">
+      <div className="flex items-center justify-between border-b border-zinc-800">
+        
+        <span className="ml-3  text-white text-2xl">
           Anonymous Chat
         </span>
+        <button
+          onClick={leaveChat}
+          className="mr-3  text-white rounded bg-pink-400"
+        >
+          Leave
+        </button>
       </div>
 
       {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto mt-10  p-4 space-y-3">
         {messages.map((m, i) => (
           <div
             key={i}
-            className="bg-zinc-800 p-2.5 rounded-lg max-w-[85%]"
+            className="w-screen bg-zinc-900 p-5 "
           >
             <p className="text-xs text-pink-400 mb-1">{m.user}</p>
 
@@ -155,8 +156,8 @@ export default function Chat() {
       </div>
 
       {/* INPUT BAR */}
-      <div className="flex items-center gap-2 px-3 py-2 border-t border-zinc-800">
-        <button onClick={() => fileRef.current.click()}>📎</button>
+      <div className="flex items-center h-16 gap-2 px-3 py-2 border-t  border-zinc-800">
+        <button onClick={() => fileRef.current.click()} className="bg-pink-400 h-10 w-10 rounded-4xl">📷</button>
 
         <input
           type="file"
@@ -167,16 +168,16 @@ export default function Chat() {
         />
 
         <input
-          className="flex-1 bg-zinc-800 p-2 rounded"
+          className="flex-1 h-10 bg-zinc-800 p-2 rounded"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Message"
+          placeholder=" Message..."
         />
 
         <button
           onClick={sendText}
-          className="bg-pink-500 px-3 py-1.5 rounded"
+          className="bg-pink-500 w-10 h-10  px-3 py-1.5 rounded-4xl"
         >
           ➤
         </button>

@@ -14,25 +14,36 @@ export default function Anonymous() {
   };
 
   return (
-    // ⬇️ IMPORTANT CHANGE HERE
-    <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white px-4 pb-20">
-      <h2 className="text-lg font-semibold mb-4">
-        Anonymous Username
-      </h2>
+    <div className="min-h-screen flex items-center justify-center bg-black text-white px-4 font-primary">
+      
+      <div className="w-full  max-w-sm  backdrop-blur-xl   rounded-2xl p-10 shadow-xl flex flex-col gap-6">
+        
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold tracking-wide">
+            Anonymous Chat
+          </h2>
+          <p className="text-sm text-zinc-400 mt-1 font-accent">
+            no names. no history. just words.
+          </p>
+        </div>
 
-      <input
-        className="w-full max-w-sm p-2 bg-zinc-800 rounded mb-4"
-        placeholder="Enter username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
+        <input
+          className="w-full p-5 pl-5 rounded bg-zinc-800 text-white placeholder-zinc-500
+                     focus:outline-none focus:ring-2 focus:ring-pink-500/70 transition"
+          placeholder="  Enter username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
 
-      <button
-        onClick={enterChat}
-        className="bg-pink-500 px-4 py-2 rounded"
-      >
-        Enter Chat
-      </button>
+        <button
+          onClick={enterChat}
+          className="w-full py-3 rounded bg-pink-500 hover:bg-pink-600
+                     active:scale-[0.98] transition font-medium tracking-wide"
+        >
+          Enter Chat
+        </button>
+
+      </div>
     </div>
   );
 }
