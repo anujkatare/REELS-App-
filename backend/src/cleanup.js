@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+const UPLOAD_DIR = path.join(process.cwd(), "./uploads");
 const ONE_HOUR = 60 * 60 * 1000;
 
 export function cleanupUploads() {

@@ -14,9 +14,9 @@ export default function Anonymous() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white px-4 font-primary">
+    <div className="min-h-screen  flex items-center justify-center bg-black text-white font-primary">
       
-      <div className="w-full  max-w-sm  backdrop-blur-xl   rounded-2xl p-10 shadow-xl flex flex-col gap-6">
+      <div className="w-80   max-w-sm  backdrop-blur-xl   rounded-2xl  shadow-xl flex flex-col  gap-6 p-20">
         
         <div className="text-center">
           <h2 className="text-2xl font-semibold tracking-wide">
