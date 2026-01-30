@@ -14,38 +14,42 @@ export default function Chat() {
   const [previewMedia, setPreviewMedia] = useState(null);
 
   const fileRef = useRef(null);
-  const messagesRef = useRef(null);
   const bottomRef = useRef(null);
 
-  // 🔐 PROTECT CHAT ROUTE
+  // 🔐 Protect route
   useEffect(() => {
     if (!username) {
       navigate("/anonymous");
     }
   }, [username, navigate]);
 
-  // 🔌 SOCKET
+  // 🔌 SOCKET (FIXED – NO DUPLICATES)
   useEffect(() => {
     if (!username) return;
 
-    socket.connect();
+    if (!socket.connected) {
+      socket.connect();
+    }
+
     socket.emit("join", username);
 
-    socket.on("newMessage", (msg) => {
+    const handleNewMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
-    });
+    };
+
+    socket.on("newMessage", handleNewMessage);
 
     return () => {
-      socket.disconnect();
+      socket.off("newMessage", handleNewMessage);
     };
   }, [username]);
 
-  // 📜 AUTO SCROLL
+  // 📜 Auto scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ✉️ SEND TEXT
+  // ✉️ Send text
   const sendText = () => {
     if (!text.trim()) return;
 
@@ -57,32 +61,43 @@ export default function Chat() {
     setText("");
   };
 
-  // 🖼️ SEND MEDIA
+  // ⌨️ Enter to send
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendText();
+    }
+  };
+
+  // 🖼️ Send media
   const sendMedia = async (file) => {
     if (!file) return;
 
     const fd = new FormData();
     fd.append("media", file);
 
-    const res = await fetch("http://localhost:5000/api/media", {
-      method: "POST",
-      body: fd,
-    });
+    try {
+      const res = await fetch("http://localhost:5000/api/media", {
+        method: "POST",
+        body: fd,
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    socket.emit("sendMessage", {
-      type: "media",
-      url: data.url,
-      mediaType: data.type,
-    });
+      socket.emit("sendMessage", {
+        type: "media",
+        url: data.url,
+        mediaType: data.type,
+      });
 
-    fileRef.current.value = "";
+      fileRef.current.value = "";
+    } catch (err) {
+      alert("Media upload failed");
+    }
   };
 
-  // ⬅️ LEAVE CHAT
+  // ⬅️ Leave chat
   const leaveChat = () => {
-    socket.disconnect();
     navigate("/anonymous");
   };
 
@@ -102,10 +117,7 @@ export default function Chat() {
       </div>
 
       {/* MESSAGES */}
-      <div
-        ref={messagesRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3"
-      >
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((m, i) => (
           <div
             key={i}
@@ -139,7 +151,6 @@ export default function Chat() {
             )}
           </div>
         ))}
-
         <div ref={bottomRef} />
       </div>
 
@@ -159,6 +170,7 @@ export default function Chat() {
           className="flex-1 bg-zinc-800 p-2 rounded"
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Message"
         />
 

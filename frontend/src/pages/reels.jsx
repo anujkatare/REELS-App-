@@ -1,104 +1,76 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
-
-const ALL_VIDEOS = [
-  "/videos/0710(3).mp4",
-  "/videos/0710(4).mp4",
-  "/videos/vid3.mp4",
-  "/videos/vid4.mp4",
-  "/videos/vid5.mp4",
-  "/videos/vid3.mp4",
-];
-
-// 🔀 SHUFFLE FUNCTION
-function shuffleArray(arr) {
-  const array = [...arr];
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
 
 export default function Reels() {
-  const { state } = useLocation();
-
-  // 👇 If coming from Search, reuse same shuffled order
-  const initialVideos =
-    state?.shuffledVideos || shuffleArray(ALL_VIDEOS);
-
-  const startIndex = state?.startIndex ?? 0;
-
-  const [videos] = useState(initialVideos);
-
-  const containerRef = useRef(null);
+  const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
+  const [userInteracted, setUserInteracted] = useState(false);
 
-  // ⬇️ Scroll to selected video
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    fetch("http://localhost:5000/api/videos")
+      .then((res) => res.json())
+      .then((data) => setVideos(shuffle(data)));
+  }, []);
 
-    requestAnimationFrame(() => {
-      container.scrollTo({
-        top: startIndex * window.innerHeight,
-        behavior: "auto",
-      });
-    });
-  }, [startIndex]);
-
-  // ▶️ Auto play / pause
+  // 👆 Detect first user interaction
   useEffect(() => {
+    const enableSound = () => {
+      setUserInteracted(true);
+      window.removeEventListener("click", enableSound);
+    };
+
+    window.addEventListener("click", enableSound);
+    return () => window.removeEventListener("click", enableSound);
+  }, []);
+
+  // 🎯 One video at a time (SAFE)
+  useEffect(() => {
+    if (!videos.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const index = Number(entry.target.dataset.index);
           const video = entry.target;
 
           if (entry.isIntersecting) {
             video.play().catch(() => {});
+            video.muted = !userInteracted; // 🔑 KEY LINE
           } else {
             video.pause();
+            video.muted = true;
           }
         });
       },
-      { threshold: 0.75 }
+      { threshold: 0.6 }
     );
 
-    videoRefs.current.forEach((video) => {
-      if (video) observer.observe(video);
-    });
+    videoRefs.current.forEach((v) => v && observer.observe(v));
 
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      videoRefs.current.forEach((v) => v && observer.unobserve(v));
+    };
+  }, [videos, userInteracted]);
 
   return (
-    <div
-      ref={containerRef}
-      className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black"
-    >
-      {videos.map((src, index) => (
+    <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black">
+      {videos.map((v, index) => (
         <div
-          key={index}
-          className="h-screen w-full snap-start"
-          style={{ scrollSnapStop: "always" }}
+          key={v.id}
+          className="h-screen snap-start flex items-center justify-center"
         >
           <video
             ref={(el) => (videoRefs.current[index] = el)}
-            src={src}
-            data-index={index}
-            className="h-full w-full object-cover"
-            muted
+            src={v.url}
             loop
             playsInline
-            preload="metadata"
-            onClick={() => {
-              const v = videoRefs.current[index];
-              if (v) v.muted = !v.muted;
-            }}
+            muted
+            className="h-full w-full object-cover"
           />
         </div>
       ))}
     </div>
   );
+}
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
 }
