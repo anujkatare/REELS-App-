@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* Page container */
+.page {
+  min-height: 100vh;
+  padding-bottom: 60px; /* space for navbar */
+}
+
+
+/* Scrollbar hidden (mobile feel) */
+::-webkit-scrollbar {
+  display: none;
+}
